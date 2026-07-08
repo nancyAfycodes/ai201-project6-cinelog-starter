@@ -1,1 +1,1 @@
-# PR Response Doc - - CineLog Watchlist Feature
+# PR Response Doc - CineLog Watchlist Feature
