@@ -1,10 +1,20 @@
 # PR Response Doc — CineLog Watchlist Feature
 
 ## AI Usage
-Used AI tools to understand existing codebase patterns before making
-changes (add_to_collection, test structure). Used AI to verify code
-changes and stress-test design arguments for Comments 4 and 5.
-All design decisions and written responses are my own reasoning.
+## AI Usage
+For this project, I used AI to help understand the codebase before
+making any changes. I described my reading of the code and asked whether
+my understanding of the flow was correct, then asked follow-up questions
+to confirm I understood how functions like `add_to_collection()` and the
+test fixtures worked before writing my own versions.
+
+For Comments 4 (default visibility) and 5 (sort order), I wrote my position first, then used AI to
+stress-test my arguments, asking what counterarguments a reviewer might
+raise. My final responses was built on that process: for Comment 4, I
+strengthened the community-sharing rationale and added a concrete
+mitigation for the privacy tradeoff; for Comment 5, I shifted from a
+weaker argument to one grounded in long-term list navigability and user
+behavior around watched films.
 
 ## Comment 1 — Rename
 **What I did:**
@@ -114,17 +124,54 @@ to confirm linear history with no merge commits. The refactor commit
 `07ca580` appears in the branch history below my commits.
 
 ## PR Description
-CineLog Watchlist Feature — adds the ability for users to save films
-they intend to watch. Includes:
-- `WatchlistEntry` model with `public` visibility flag
-- `add_to_watchlist()` and `get_watchlist()` service functions
-- Deduplication guard following the same pattern as `add_to_collection()`
-- Tests for happy path, duplicate, and nonexistent film cases
-- Rebased on main after UUID film ID refactor
+This PR adds the watchlist feature to CineLog, allowing users to save
+films they intend to watch later.
 
-Design decisions: default visibility is `public=True` to support
-community sharing (opt-out mitigates privacy concerns). Sort order
-kept alphabetical for long-term list navigability.
+**What was added:**
+- `WatchlistEntry` model with `public` visibility flag (default `True`)
+- `add_to_watchlist()` service function with film-exists and dedup guards
+- `get_watchlist()` service function returning enriched film dicts
+- POST and GET endpoints under `/watchlist/<user_id>`
+- Tests for happy path, duplicate, and nonexistent film cases
+
+**Design decisions:**
+- *Default visibility (`public=True`)*: Kept public by default to support
+  CineLog's community value of sharing. Users can see each other's
+  watchlist for film discovery. Privacy tradeoff is acknowledged and
+  could be mitigated by a per-title opt-out feature.
+- *Sort order (alphabetical)*: Kept alphabetical rather than switching to
+  date-added. As a watchlist grows, alphabetical order stays stable and
+  scannable. Date-added buries older films as new ones accumulate,
+  making the list harder to navigate if users aren't consistently
+  removing watched films.
+
+**Manual testing steps:**
+
+1. Clone the repo and install dependencies:
+pip install -r requirements.txt
+
+2. Run the app:
+python app.py
+
+3. Add a film to a user's watchlist (replace UUIDs with real values):
+POST http://localhost:5000/watchlist/<user_id>/add
+Body: { "film_id": "<film_uuid>" }
+   Expected response: `201` with the new `WatchlistEntry` as JSON.
+
+4. Try adding the same film again:
+POST http://localhost:5000/watchlist/<user_id>/add
+Body: { "film_id": "<same_film_uuid>" }
+   Expected response: error — `AlreadyInWatchlistError`.
+
+5. Try adding a film that doesn't exist:
+POST http://localhost:5000/watchlist/<user_id>/add
+Body: { "film_id": "00000000-0000-0000-0000-000000000000" }
+   Expected response: error — `FilmNotFoundError`.
+
+6. Retrieve the watchlist:
+GET http://localhost:5000/watchlist/<user_id>
+   Expected response: `200` with a list of film dicts sorted
+   alphabetically by title, each including `date_added` and `public`.
 
 ## Git Log image
 ![Git log showing conventional commits](git-log.png)
