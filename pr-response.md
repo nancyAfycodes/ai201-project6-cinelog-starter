@@ -125,3 +125,6 @@ they intend to watch. Includes:
 Design decisions: default visibility is `public=True` to support
 community sharing (opt-out mitigates privacy concerns). Sort order
 kept alphabetical for long-term list navigability.
+
+## Git Log image
+![Git log showing conventional commits](git-log.png)
