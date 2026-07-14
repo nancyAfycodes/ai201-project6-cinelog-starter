@@ -157,6 +157,22 @@ expected fields. This also caught a missing `film` relationship on
 `WatchlistEntry` that would have caused a runtime error in production.
 
 
+## Stretch Feature — Visibility Toggle
+**What I added:**
+Added an optional `public` parameter to `add_to_watchlist(user_id, film_id, public=True)`.
+Callers can now set visibility explicitly when adding a film, overriding the default.
+Updated the POST endpoint in `routes/watchlist/watchlist.py` to accept `public` in the
+request body: `{ "film_id": "...", "public": false }`.
+
+**Tests added:**
+- `test_add_to_watchlist_with_public_false` — verifies explicit `public=False` is persisted
+- `test_add_to_watchlist_defaults_to_public_true` — verifies default behavior when `public` is omitted
+
+**Design rationale:**
+Making `public` optional with a default preserves backward compatibility — existing code
+that doesn't pass `public` continues to work. Callers who need privacy for specific films
+can now opt out explicitly rather than opting into the feature wholesale.
+
 ---
 
 ## PR Description
