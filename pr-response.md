@@ -123,6 +123,21 @@ with `film_id = db.Column(db.String(36), ...)`. Ran `git log --oneline`
 to confirm linear history with no merge commits. The refactor commit
 `07ca580` appears in the branch history below my commits.
 
+## Stretch Feature — remove_from_watchlist()
+**What I did:**
+Added `NotInWatchlistError` exception class and `remove_from_watchlist(user_id, film_id)`
+to `watchlist_service.py`, following the same pattern as
+`remove_from_collection()` in `collection_service.py`. The function
+queries for the entry, raises `NotInWatchlistError` if not found,
+otherwise deletes it and returns `True`.
+
+Added two tests to `test_watchlist.py`:
+- `test_remove_from_watchlist_removes_entry` — happy path, verifies
+  the entry is deleted and DB confirms it's gone
+- `test_remove_from_watchlist_not_in_watchlist_raises` — verifies
+  `NotInWatchlistError` fires when the film isn't on the watchlist
+
+
 ## PR Description
 This PR adds the watchlist feature to CineLog, allowing users to save
 films they intend to watch later.
