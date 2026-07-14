@@ -160,3 +160,30 @@ def test_get_watchlist_returns_correct_format(app, sample_user, sample_film):
         assert "title" in film  # title key exists
         assert "date_added" in film  # date_added key exists
         assert "public" in film # public key exists
+
+# ── Toggle Visibility ─────────────────────────────────────────────────────────
+
+def test_add_to_watchlist_with_public_false(app, sample_user, sample_film):
+    """
+    Adding a film with public=False should create an entry with public=False.
+    """
+    with app.app_context():
+        entry = add_to_watchlist(user_id=sample_user, film_id=sample_film, public=False)
+
+        assert entry.public is False
+
+        # Verify it persisted with public=False
+        in_db = WatchlistEntry.query.filter_by(
+            user_id=sample_user, film_id=sample_film
+        ).first()
+        assert in_db.public is False
+
+
+def test_add_to_watchlist_defaults_to_public_true(app, sample_user, sample_film):
+    """
+    Adding a film without specifying public should default to public=True.
+    """
+    with app.app_context():
+        entry = add_to_watchlist(user_id=sample_user, film_id=sample_film)
+
+        assert entry.public is True
