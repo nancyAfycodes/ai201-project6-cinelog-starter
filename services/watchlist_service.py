@@ -67,7 +67,7 @@ def get_watchlist(user_id):
 
     result = []
     for entry in entries:
-        film_dict = entry.film.to_dict()
+        film_dict = entry.watchlist_film.to_dict()
         film_dict["date_added"] = entry.date_added.isoformat()
         film_dict["public"] = entry.public
         result.append(film_dict)

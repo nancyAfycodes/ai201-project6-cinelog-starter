@@ -136,3 +136,27 @@ def test_remove_from_watchlist_removes_entry(app, sample_user, sample_film):
             user_id=sample_user, film_id=sample_film
         ).first()
         assert in_db is None
+
+# ── Result format for watchlist ─────────────────────────────────────────────────────────
+
+def test_get_watchlist_returns_correct_format(app, sample_user, sample_film):
+    """
+    get_watchlist() should return a list of dicts, each containing
+    film data merged with watchlist metadata (date_added, public).
+    """
+    with app.app_context():
+        # Arrange — add a film to the watchlist
+        add_to_watchlist(user_id=sample_user, film_id=sample_film)
+
+        # Act
+        result = get_watchlist(user_id=sample_user)
+
+        # Assert — result is a list with one item
+        assert isinstance(result, list)
+        assert len(result) == 1
+
+        # Assert — the item is a dict with the expected keys
+        film = result[0]
+        assert "title" in film  # title key exists
+        assert "date_added" in film  # date_added key exists
+        assert "public" in film # public key exists
