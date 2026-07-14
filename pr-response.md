@@ -123,6 +123,10 @@ with `film_id = db.Column(db.String(36), ...)`. Ran `git log --oneline`
 to confirm linear history with no merge commits. The refactor commit
 `07ca580` appears in the branch history below my commits.
 
+---
+
+# Stretch Features
+
 ## Stretch Feature — remove_from_watchlist()
 **What I did:**
 Added `NotInWatchlistError` exception class and `remove_from_watchlist(user_id, film_id)`
@@ -137,6 +141,23 @@ Added two tests to `test_watchlist.py`:
 - `test_remove_from_watchlist_not_in_watchlist_raises` — verifies
   `NotInWatchlistError` fires when the film isn't on the watchlist
 
+
+## Stretch Feature — Second Test
+**What I tested:**
+`test_get_watchlist_returns_correct_format` — verifies that
+`get_watchlist()` returns a list of dicts, each containing the expected
+keys (`title`, `date_added`, `public`).
+
+**Why I chose this case:**
+`get_watchlist()` merges two data sources — `film.to_dict()` and the
+`WatchlistEntry` metadata — into a single dict per item. I wanted to
+verify that the merged output has the correct structure and that the
+format conversion from ORM objects to a list of dicts doesn't drop any
+expected fields. This also caught a missing `film` relationship on
+`WatchlistEntry` that would have caused a runtime error in production.
+
+
+---
 
 ## PR Description
 This PR adds the watchlist feature to CineLog, allowing users to save
